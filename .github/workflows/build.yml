@@ -26,6 +26,7 @@ jobs:
       - name: Build with Gradle
         run: |
           chmod +x gradlew
+          export GRADLE_OPTS="-Dhttps.protocols=TLSv1.2,TLSv1.3 -Ddeployment.security.TLSv1.2=true"
           ./gradlew assembleDebug --stacktrace
         shell: bash
 
