@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>RedMagic HUD</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: #0A0A0F; color: #E8E0D0;
+    font-family: 'Share Tech Mono', monospace;
+    height: 100vh; overflow: hidden;
+}
+canvas#particles {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
+    pointer-events: none;
+}
+.header {
+    position: relative; z-index: 1; text-align: center; padding: 20px 10px 10px;
+}
+.header h1 {
+    font-family: 'Orbitron', sans-serif; font-size: 22px; color: #FFB800;
+    letter-spacing: 6px; text-shadow: 0 0 20px rgba(255,184,0,0.3);
+}
+.header .status { font-size: 10px; color: #00FF88; letter-spacing: 3px; margin-top: 4px; }
+.gauges {
+    position: relative; z-index: 1; display: flex; justify-content: space-around;
+    padding: 10px 10px 5px;
+}
+.gauge { text-align: center; width: 30%; }
+.gauge svg { width: 90%; height: auto; }
+.gauge .value { font-size: 22px; font-weight: bold; margin-top: -30px; }
+.gauge .label { font-size: 9px; color: #888080; letter-spacing: 2px; margin-top: 2px; }
+.gauge .unit { font-size: 10px; color: #555050; }
+.cards {
+    position: relative; z-index: 1;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px 12px;
+}
+.card {
+    background: rgba(26,26,40,0.85); border: 1px solid rgba(255,184,0,0.3);
+    border-radius: 10px; padding: 12px;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+@keyframes glow {
+    from { border-color: rgba(255,184,0,0.2); }
+    to { border-color: rgba(255,184,0,0.6); }
+}
+.card .title { font-size: 9px; color: #888080; letter-spacing: 2px; margin-bottom: 4px; }
+.card .big { font-size: 24px; font-weight: bold; }
+.card .sub { font-size: 10px; color: #555050; margin-top: 2px; }
+.card .bar { height: 3px; background: #2A2A35; border-radius: 2px; margin-top: 8px; overflow: hidden; }
+.card .bar .fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
+.gold { color: #FFB800; } .cyan { color: #00FFF6; } .green { color: #00FF88; }
+.red { color: #FF3355; } .yellow { color: #FFAA00; }
+.actions { position: relative; z-index: 1; padding: 8px 12px; }
+.actions .section-title { font-size: 9px; color: #888080; letter-spacing: 2px; margin-bottom: 8px; }
+.actions .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.actions .btn {
+    background: rgba(18,18,26,0.9); border: 1px solid #2A2A35;
+    border-radius: 8px; padding: 10px; text-align: center; cursor: pointer;
+    transition: all 0.2s;
+}
+.actions .btn:active { background: rgba(255,140,0,0.2); border-color: #FFB800; }
+.actions .btn .icon { font-size: 18px; color: #FFB800; }
+.actions .btn .name { font-size: 10px; color: #E8E0D0; margin-top: 4px; }
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+<div class="header">
+  <h1>REDMAGIC HUD</h1>
+  <div class="status">SYSTEM MONITOR</div>
+</div>
+<div class="gauges">
+  <div class="gauge">
+    <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#2A2A35" stroke-width="6"/>
+      <circle cx="50" cy="50" r="42" fill="none" stroke="#FFB800" stroke-width="6"
+        stroke-dasharray="264" stroke-dashoffset="264" stroke-linecap="round" id="cpuArc"
+        transform="rotate(-135 50 50)"/></svg>
+    <div class="value gold" id="cpuValue">0</div>
+    <div class="label">CPU</div><div class="unit">%</div>
+  </div>
+  <div class="gauge">
+    <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#2A2A35" stroke-width="6"/>
+      <circle cx="50" cy="50" r="42" fill="none" stroke="#00FFF6" stroke-width="6"
+        stroke-dasharray="264" stroke-dashoffset="264" stroke-linecap="round" id="ramArc"
+        transform="rotate(-135 50 50)"/></svg>
+    <div class="value cyan" id="ramValue">0</div>
+    <div class="label">RAM</div><div class="unit">%</div>
+  </div>
+  <div class="gauge">
+    <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#2A2A35" stroke-width="6"/>
+      <circle cx="50" cy="50" r="42" fill="none" stroke="#00FF88" stroke-width="6"
+        stroke-dasharray="264" stroke-dashoffset="264" stroke-linecap="round" id="batArc"
+        transform="rotate(-135 50 50)"/></svg>
+    <div class="value green" id="batValue">0</div>
+    <div class="label">BAT</div><div class="unit">%</div>
+  </div>
+</div>
+<div class="cards">
+  <div class="card"><div class="title">RAM</div>
+    <div class="big cyan" id="ramDetail">0 GB</div>
+    <div class="sub" id="ramTotal">de 0 GB</div>
+    <div class="bar"><div class="fill cyan" id="ramBar" style="width:0%"></div></div></div>
+  <div class="card"><div class="title">TEMP</div>
+    <div class="big gold" id="cpuTemp">0&deg;C</div>
+    <div class="sub" id="batTemp">Bater&iacute;a: 0&deg;C</div>
+    <div class="bar"><div class="fill gold" id="tempBar" style="width:0%"></div></div></div>
+  <div class="card"><div class="title">REFRESH</div>
+    <div class="big green" id="refreshRate">120 Hz</div>
+    <div class="sub" id="uptime">Uptime: 0h</div></div>
+  <div class="card"><div class="title">BATER&Iacute;A</div>
+    <div class="big yellow" id="batteryLevel">0%</div>
+    <div class="sub" id="batteryStatus">No conectado</div>
+    <div class="bar"><div class="fill yellow" id="batBar" style="width:0%"></div></div></div>
+</div>
+<div class="actions"><div class="section-title">ACCIONES R&Aacute;PIDAS</div>
+  <div class="grid">
+    <div class="btn"><div class="icon">&#9654;</div><div class="name">Game Mode</div></div>
+    <div class="btn"><div class="icon">&#9838;</div><div class="name">Eco Mode</div></div>
+    <div class="btn"><div class="icon">&#9881;</div><div class="name">Clean Bloat</div></div>
+    <div class="btn"><div class="icon">&#128274;</div><div class="name">Lock Termux</div></div>
+  </div>
+</div>
+<script>
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+const particles = Array.from({length:35},()=>({
+  x:Math.random()*canvas.width, y:Math.random()*canvas.height,
+  vx:(Math.random()-0.5)*0.5, vy:(Math.random()-0.5)*0.5,
+  size:Math.random()*2.5+1, alpha:Math.random()*0.5+0.2
+}));
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach((p,i)=>{
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x<0||p.x>canvas.width)p.vx*=-1;
+    if(p.y<0||p.y>canvas.height)p.vy*=-1;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,184,0,'+p.alpha+')'; ctx.fill();
+    for(let j=i+1;j<particles.length;j++){
+      let dx=p.x-particles[j].x, dy=p.y-particles[j].y, dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<120){
+        ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(particles[j].x,particles[j].y);
+        ctx.strokeStyle='rgba(255,184,0,'+(1-dist/120)*0.25+')';
+        ctx.lineWidth=0.6; ctx.stroke();
+      }
+    }
+  }); requestAnimationFrame(draw);
+}
+draw();
+const c=264;
+function sg(i,p,col){let e=document.getElementById(i);if(!e)return;e.style.strokeDashoffset=c-p/100*c*0.75;e.style.stroke=col;}
+function ud(){
+  let cpu=Math.min(100,Math.max(0,Math.round(Math.random()*40+10)));
+  let ram=Math.min(100,Math.max(0,Math.round(Math.random()*30+40)));
+  let bat=Math.min(100,Math.max(0,Math.round(Math.random()*10+70)));
+  sg('cpuArc',cpu,'#FFB800'); sg('ramArc',ram,'#00FFF6'); sg('batArc',bat,'#00FF88');
+  document.getElementById('cpuValue').textContent=cpu;
+  document.getElementById('ramValue').textContent=ram;
+  document.getElementById('batValue').textContent=bat;
+  let rgb=(ram/100*12).toFixed(1);
+  document.getElementById('ramDetail').textContent=rgb+' GB';
+  document.getElementById('ramTotal').textContent='de 12.0 GB';
+  document.getElementById('ramBar').style.width=ram+'%';
+  let t=(Math.random()*15+35).toFixed(1);
+  document.getElementById('cpuTemp').textContent=t+'°C';
+  document.getElementById('batTemp').textContent='Batería: '+(Math.random()*5+28).toFixed(1)+'°C';
+  document.getElementById('tempBar').style.width=(t/80*100)+'%';
+  document.getElementById('refreshRate').textContent='120 Hz';
+  document.getElementById('uptime').textContent='Uptime: '+Math.floor(Math.random()*48+2)+'h';
+  document.getElementById('batteryLevel').textContent=bat+'%';
+  document.getElementById('batteryStatus').textContent=Math.random()>0.5?'CARGANDO ⚡':'No conectado';
+  document.getElementById('batBar').style.width=bat+'%';
+}
+setInterval(ud,2000); ud();
+</script>
+</body>
+</html>
