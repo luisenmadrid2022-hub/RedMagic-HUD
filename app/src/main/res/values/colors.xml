@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#0A0A0F</color>
+    <color name="surface_card">#1A1A28</color>
+    <color name="gold">#FFB800</color>
+    <color name="amber">#FF8C00</color>
+    <color name="cyan">#00FFF6</color>
+    <color name="text_primary">#E8E0D0</color>
+    <color name="text_secondary">#888080</color>
+    <color name="text_dim">#555050</color>
+    <color name="border">#2A2A35</color>
+    <color name="green">#00FF88</color>
+    <color name="red">#FF3355</color>
+</resources>
