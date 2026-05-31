@@ -16,7 +16,7 @@ object ShizukuManager {
     fun execute(command: String): String {
         val output = StringBuilder()
         try {
-            val process = Shizuku.newProcess(arrayOf("sh", "-c", command), arrayOf(), null)
+            val process = Shizuku.newProcess(arrayOf("sh", "-c", command), null)
             process.inputStream.bufferedReader().use { reader ->
                 var line: String?
                 while (reader.readLine().also { line = it } != null) {
