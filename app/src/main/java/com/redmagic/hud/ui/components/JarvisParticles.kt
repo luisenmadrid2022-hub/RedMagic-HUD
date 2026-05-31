@@ -59,7 +59,7 @@ fun JarvisParticles(modifier: Modifier = Modifier) {
             val y = center.y + p.radius * sin(radians).toFloat()
             val pos = Offset(x, y)
 
-            val glowAlpha = p.alpha * (0.7f + 0.3f * sin(Math.toRadians((globalPhase + p.phase * 60f)).toFloat()))
+            val glowAlpha = p.alpha * (0.7f + 0.3f * sin(Math.toRadians((globalPhase + p.phase * 60f).toDouble())).toFloat())
 
             // Node glow
             drawCircle(

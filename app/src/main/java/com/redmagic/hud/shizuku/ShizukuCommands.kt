@@ -1,11 +1,13 @@
 package com.redmagic.hud.shizuku
 
+typealias ShizukuExecutor = (String) -> String
+
 class ShizukuCommands {
 
     private val sh: ShizukuExecutor = { cmd -> ShizukuManager.execute(cmd) }
 
     fun getCpuUsage(): Float {
-        val out = sh("top -bn1 -d 0.1 | grep \"CPU:\" | awk '{print 100 - \$8}'")
+        val out = sh("top -bn1 -d 0.1 | grep \"CPU:\" | awk '{print 100 - $8}'")
         return out.lines().firstOrNull { it.isNotBlank() }?.toFloatOrNull() ?: 0f
     }
 
@@ -15,17 +17,17 @@ class ShizukuCommands {
     }
 
     fun getRamTotal(): Long {
-        val out = sh("grep MemTotal /proc/meminfo | awk '{print \$2}'")
+        val out = sh("grep MemTotal /proc/meminfo | awk '{print $2}'")
         return out.lines().firstOrNull { it.isNotBlank() }?.toLongOrNull() ?: 0L
     }
 
     fun getRamAvailable(): Long {
-        val out = sh("grep MemAvailable /proc/meminfo | awk '{print \$2}'")
+        val out = sh("grep MemAvailable /proc/meminfo | awk '{print $2}'")
         return out.lines().firstOrNull { it.isNotBlank() }?.toLongOrNull() ?: 0L
     }
 
     fun getBattery(): String {
-        val out = sh("dumpsys battery | grep -E \"level|temperature|AC powered|USB powered\" | awk '{print \$2}' | tr '\\n' ' '")
+        val out = sh("dumpsys battery | grep -E \"level|temperature|AC powered|USB powered\" | awk '{print $2}' | tr '\\n' ' '")
         return out
     }
 
@@ -35,13 +37,11 @@ class ShizukuCommands {
     }
 
     fun getUptime(): Float {
-        val out = sh("cat /proc/uptime | awk '{print \$1}'")
+        val out = sh("cat /proc/uptime | awk '{print $1}'")
         return out.lines().firstOrNull { it.isNotBlank() }?.toFloatOrNull() ?: 0f
     }
 
     fun executeCommand(command: String): String {
         return sh(command)
     }
-
-    private typealias ShizukuExecutor = (String) -> String
 }
