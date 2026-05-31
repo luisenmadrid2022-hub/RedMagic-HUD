@@ -3,20 +3,10 @@ package com.redmagic.hud.shizuku
 object ShizukuManager {
 
     fun isReady(): Boolean {
-        return try {
-            rikka.shizuku.Shizuku.pingBinder() && rikka.shizuku.Shizuku.getVersion() > 0
-        } catch (_: Exception) {
-            false
-        }
+        return false
     }
 
-    fun executeShizukuCommand(command: String): String {
-        // Shizuku 13.1.5 does not expose public newProcess
-        // Fall back to normal shell for now
-        return executeNormal(command)
-    }
-
-    private fun executeNormal(command: String): String {
+    fun execute(command: String): String {
         val output = StringBuilder()
         try {
             val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
@@ -32,9 +22,5 @@ object ShizukuManager {
             throw RuntimeException("Command execution failed", e)
         }
         return output.toString().trim()
-    }
-
-    fun execute(command: String): String {
-        return executeNormal(command)
     }
 }
