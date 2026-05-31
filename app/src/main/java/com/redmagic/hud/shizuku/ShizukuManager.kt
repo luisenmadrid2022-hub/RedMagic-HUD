@@ -1,22 +1,25 @@
 package com.redmagic.hud.shizuku
 
-import android.os.RemoteException
-import rikka.shizuku.Shizuku
-
 object ShizukuManager {
 
     fun isReady(): Boolean {
         return try {
-            Shizuku.pingBinder() && Shizuku.getVersion() > 0
+            rikka.shizuku.Shizuku.pingBinder() && rikka.shizuku.Shizuku.getVersion() > 0
         } catch (_: Exception) {
             false
         }
     }
 
-    fun execute(command: String): String {
+    fun executeShizukuCommand(command: String): String {
+        // Shizuku 13.1.5 does not expose public newProcess
+        // Fall back to normal shell for now
+        return executeNormal(command)
+    }
+
+    private fun executeNormal(command: String): String {
         val output = StringBuilder()
         try {
-            val process = Shizuku.newProcess(arrayOf("sh", "-c", command), null)
+            val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
             process.inputStream.bufferedReader().use { reader ->
                 var line: String?
                 while (reader.readLine().also { line = it } != null) {
@@ -25,9 +28,13 @@ object ShizukuManager {
                 }
             }
             process.waitFor()
-        } catch (e: RemoteException) {
-            throw RuntimeException("Shizuku execution failed", e)
+        } catch (e: Exception) {
+            throw RuntimeException("Command execution failed", e)
         }
         return output.toString().trim()
+    }
+
+    fun execute(command: String): String {
+        return executeNormal(command)
     }
 }
