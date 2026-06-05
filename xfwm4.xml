@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<channel name="xfwm4" version="1.0">
+  <property name="general" type="empty">
+    <property name="theme" type="string" value="Adwaita"/>
+    <property name="title_font" type="string" value="Sans 11"/>
+    <property name="title_alignment" type="string" value="center"/>
+    <property name="button_layout" type="string" value="O|SHMC"/>
+    <property name="workspace_count" type="uint" value="4"/>
+    <property name="border_width" type="uint" value="1"/>
+  </property>
+</channel>
